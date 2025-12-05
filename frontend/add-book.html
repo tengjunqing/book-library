@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>添加图书</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+<div class="max-w-xl mx-auto mt-10 bg-white shadow-lg rounded-lg p-8">
+
+    <h1 class="text-2xl font-bold mb-6">📚 添加图书</h1>
+
+    <form id="book-form" class="space-y-4">
+
+        <!-- title -->
+        <div>
+            <label class="font-semibold">书名</label>
+            <input id="title" type="text" class="w-full mt-1 p-2 border rounded"
+                   placeholder="输入书名" required>
+        </div>
+
+        <!-- author -->
+        <div>
+            <label class="font-semibold">作者</label>
+            <input id="author" type="text" class="w-full mt-1 p-2 border rounded"
+                   placeholder="输入作者" required>
+        </div>
+
+        <!-- description -->
+        <div>
+            <label class="font-semibold">简介</label>
+            <textarea id="description" rows="4"
+                      class="w-full mt-1 p-2 border rounded"
+                      placeholder="输入图书简介"></textarea>
+        </div>
+
+        <!-- cover -->
+        <div>
+            <label class="font-semibold">封面</label>
+            <input id="cover" type="file" accept="image/*"
+                   class="w-full mt-1 p-2 border rounded">
+        </div>
+
+        <button type="submit"
+                class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+            提交
+        </button>
+
+        <p id="msg" class="text-center mt-4 text-sm"></p>
+
+    </form>
+
+</div>
+
+<script>
+    document.getElementById("book-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const msg = document.getElementById("msg");
+        msg.textContent = "正在提交...";
+        msg.className = "text-center text-blue-600 mt-4";
+
+        const formData = new FormData();
+        formData.append("title", document.getElementById("title").value);
+        formData.append("author", document.getElementById("author").value);
+        formData.append("description", document.getElementById("description").value);
+
+        const fileInput = document.getElementById("cover");
+        if (fileInput.files.length > 0) {
+            formData.append("cover", fileInput.files[0]);
+        }
+
+        try {
+            const res = await fetch("http://localhost:8000/books", {
+                method: "POST",
+                body: formData
+            });
+
+            if (!res.ok) throw new Error(await res.text());
+
+            msg.textContent = "添加成功！";
+            msg.className = "text-center text-green-600 mt-4";
+
+            document.getElementById("book-form").reset();
+        } catch (err) {
+            msg.textContent = "提交失败：" + err.message;
+            msg.className = "text-center text-red-600 mt-4";
+        }
+    });
+</script>
+
+</body>
+</html>
+
